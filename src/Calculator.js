@@ -3,39 +3,255 @@ import React, { Component } from 'react';
 import CalcScreen from './CalcScreen';
 import CalcKey from './CalcKey';
 
+function tackRight(cur, num) {
+  return cur === null
+    ? parseFloat(num)
+    : parseFloat([...cur.toString(), num].join(''));
+}
+
+const isInt = num => ({ a, b, func }) => {
+  const str = num.toString();
+  if (func && !b) {
+    return { b: num };
+  }
+  const nextB = b ? tackRight(b, str) : null;
+  const nextA = nextB ? a : tackRight(a, str);
+  return { a: nextA, b: nextB };
+};
+
+const operFuncs = {
+  div: (a, b) => {
+    if (b === 0) return NaN;
+    return a / b;
+  },
+  mul: (a, b) => {
+    return a * b;
+  },
+};
+
 const keys = [
-  { value: 'AC', area: 'ac' },
-  { value: '+/-', area: 'pm' },
-  { value: 'Del', area: 'del' },
-  { value: '÷', area: 'div' },
-  { value: '7', area: 'sev' },
-  { value: '8', area: 'eig' },
-  { value: '9', area: 'nin' },
-  { value: '×', area: 'mul' },
-  { value: '4', area: 'fou' },
-  { value: '5', area: 'fiv' },
-  { value: '6', area: 'six' },
-  { value: '−', area: 'sub' },
-  { value: '1', area: 'one' },
-  { value: '2', area: 'two' },
-  { value: '3', area: 'thr' },
-  { value: '+', area: 'add' },
-  { value: '0', area: 'zer' },
-  { value: '.', area: 'dec' },
-  { value: '=', area: 'eq' },
+  {
+    value: 'AC',
+    area: 'ac',
+    fun: initState,
+  },
+  {
+    value: '+/-',
+    area: 'pm',
+    fun: ({ prev, a, b }) => {
+      if (a === null) {
+        return { prev: -prev };
+      }
+      const nextB = b ? -b : null;
+      const nextA = nextB ? a : -a;
+      return { prev, a: nextA, b: nextB };
+    },
+  },
+  {
+    value: 'Del',
+    area: 'del',
+    fun: ({ prev, a, b }) => {
+      if (a === null) {
+        return { prev: +prev.toString().slice(0, -1) };
+      }
+      const nextB = b ? +b.toString().slice(0, -1) : null;
+      const nextA = nextB ? a : +a.toString().slice(0, -1);
+      return { prev, a: nextA, b: nextB };
+    },
+  },
+  {
+    value: '÷',
+    area: 'div',
+    fun: ({ prev, a, b, func }) => {
+      if (!func) {
+        if (a === null) {
+          return { prev: 0, a: prev, func: operFuncs['div'] };
+        } else {
+          return { func: operFuncs['div'] };
+        }
+      }
+      if (!b) {
+        if (func === operFuncs['div']) {
+          return;
+        } else {
+          return { func: operFuncs['div'] };
+        }
+      }
+      const nextB = null;
+      const nextA = b ? func(a, b) : func(prev, a);
+      const nextFunc = operFuncs['div'];
+      return { prev, a: nextA, b: nextB, func: nextFunc };
+    },
+  },
+  {
+    value: '7',
+    area: 'sev',
+    fun: isInt(7),
+  },
+  {
+    value: '8',
+    area: 'eig',
+    fun: isInt(8),
+  },
+  {
+    value: '9',
+    area: 'nin',
+    fun: isInt(9),
+  },
+  {
+    value: '×',
+    area: 'mul',
+    fun: ({ prev, a, b, func }) => {
+      if (!func) {
+        if (a === null) {
+          return { prev: 0, a: prev, func: operFuncs['mul'] };
+        } else {
+          return { func: operFuncs['mul'] };
+        }
+      }
+      if (!b) {
+        if (func === operFuncs['mul']) {
+          return;
+        } else {
+          return { func: operFuncs['mul'] };
+        }
+      }
+      const nextB = null;
+      const nextA = b ? func(a, b) : func(prev, a);
+      const nextFunc = operFuncs['mul'];
+      return { prev, a: nextA, b: nextB, func: nextFunc };
+    },
+  },
+  {
+    value: '4',
+    area: 'fou',
+    fun: isInt(4),
+  },
+  {
+    value: '5',
+    area: 'fiv',
+    fun: isInt(5),
+  },
+  {
+    value: '6',
+    area: 'six',
+    fun: isInt(6),
+  },
+  {
+    value: '−',
+    area: 'sub',
+    fun: ({ prev, a, b, func, neg }) => {
+      if (func) {
+        if (neg) {
+          return { ...initState(), prev: prev - func(a, b), neg: true };
+        } else {
+          return { ...initState(), prev: prev + func(a, b), neg: true };
+        }
+      } else {
+        if (neg) {
+          return { ...initState(), prev: prev - a, neg: true };
+        } else {
+          return { ...initState(), prev: prev + a, neg: true };
+        }
+      }
+    },
+  },
+  {
+    value: '1',
+    area: 'one',
+    fun: isInt(1),
+  },
+  {
+    value: '2',
+    area: 'two',
+    fun: isInt(2),
+  },
+  {
+    value: '3',
+    area: 'thr',
+    fun: isInt(3),
+  },
+  {
+    value: '+',
+    area: 'add',
+    fun: ({ prev, a, b, func, neg }) => {
+      if (func) {
+        if (neg) {
+          return { ...initState(), prev: prev - func(a, b) };
+        } else {
+          return { ...initState(), prev: prev + func(a, b) };
+        }
+      } else {
+        if (neg) {
+          return { ...initState(), prev: prev - a };
+        } else {
+          return { ...initState(), prev: prev + a };
+        }
+      }
+    },
+  },
+  {
+    value: '0',
+    area: 'zer',
+    fun: isInt(0),
+  },
+  {
+    value: '.',
+    area: 'dec',
+    fun: ({ prev, a, b, func }) => {
+      if (func && !b) {
+        return { prev, a, b: 0, func, dec: true };
+      }
+      const nextB = b ? tackRight(b, '.') : null;
+      const nextA = nextB ? null : tackRight(a, '.');
+      return { prev, a: nextA, b: nextB };
+    },
+  },
+  {
+    value: '=',
+    area: 'eq',
+    fun: ({ prev, a, b, func, neg }) => {
+      if (func) {
+        if (neg) {
+          return { ...initState(), prev: prev - func(a, b) };
+        } else {
+          return { ...initState(), prev: prev + func(a, b) };
+        }
+      } else {
+        if (neg) {
+          return { ...initState(), prev: prev - a };
+        } else {
+          return { ...initState(), prev: prev + a };
+        }
+      }
+    },
+  },
 ];
 
-class Calculator extends Component {
-  state = {
-    display: '0',
+function initState() {
+  return {
+    prev: 0,
+    a: null,
+    b: null,
+    func: null,
+    neg: false,
+    dec: false,
   };
+}
 
-  onClick = value => () => this.setState({ display: value });
+class Calculator extends Component {
+  state = initState();
+
+  onClick = (fun, pressed) => () =>
+    this.setState(state => ({ ...fun(state), pressed }));
 
   render() {
-    const { display } = this.state;
+    const { prev, a, b } = this.state;
+    const dis = b ? b : a ? a : prev;
+    const display = isNaN(dis) ? 'Err' : parseFloat(dis);
     return (
       <div className="Calc">
+        <div className="CalcModel">Reactulator</div>
         <div className="CalcGrid">
           <React.Fragment>
             <CalcScreen>{display}</CalcScreen>
@@ -43,7 +259,7 @@ class Calculator extends Component {
               <CalcKey
                 key={o.value}
                 area={o.area}
-                onClick={this.onClick(o.value)}
+                onClick={this.onClick(o.fun, o.area)}
               >
                 {o.value}
               </CalcKey>
