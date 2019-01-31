@@ -25,7 +25,7 @@ const isInt = num => ({ a, b, func, dec }) => {
       return { b: parseFloat(`0.${num}`) };
     } else return { b: num };
   }
-  const nextB = b ? tackRight(b, str, dec) : null;
+  const nextB = b !== null ? tackRight(b, str, dec) : null;
   const nextA = nextB ? a : tackRight(a, str, dec);
   return { a: nextA, b: nextB };
 };
