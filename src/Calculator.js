@@ -3,19 +3,30 @@ import React, { Component } from 'react';
 import CalcScreen from './CalcScreen';
 import CalcKey from './CalcKey';
 
-function tackRight(cur, num) {
-  return cur === null
-    ? parseFloat(num)
-    : parseFloat([...cur.toString(), num].join(''));
+function tackRight(cur, num, dec) {
+  if (dec) {
+    if (cur === null) {
+      return parseFloat(`0.${num}`);
+    }
+    if (Number.isInteger(cur)) {
+      return parseFloat([...cur.toString(), '.', num].join(''));
+    }
+  } else {
+    return cur === null
+      ? parseFloat(num)
+      : parseFloat([...cur.toString(), num].join(''));
+  }
 }
 
-const isInt = num => ({ a, b, func }) => {
+const isInt = num => ({ a, b, func, dec }) => {
   const str = num.toString();
-  if (func && !b) {
-    return { b: num };
+  if (func && b === null) {
+    if (dec) {
+      return { b: parseFloat(`0.${num}`) };
+    } else return { b: num };
   }
-  const nextB = b ? tackRight(b, str) : null;
-  const nextA = nextB ? a : tackRight(a, str);
+  const nextB = b ? tackRight(b, str, dec) : null;
+  const nextA = nextB ? a : tackRight(a, str, dec);
   return { a: nextA, b: nextB };
 };
 
@@ -200,11 +211,8 @@ const keys = [
     area: 'dec',
     fun: ({ prev, a, b, func }) => {
       if (func && !b) {
-        return { prev, a, b: 0, func, dec: true };
+        return { b: 0 };
       }
-      const nextB = b ? tackRight(b, '.') : null;
-      const nextA = nextB ? null : tackRight(a, '.');
-      return { prev, a: nextA, b: nextB };
     },
   },
   {
@@ -243,9 +251,16 @@ class Calculator extends Component {
   state = initState();
 
   onClick = (fun, pressed) => () =>
-    this.setState(state => ({ ...fun(state), pressed }));
+    this.setState(state => {
+      if (pressed === 'dec') {
+        return { ...fun(state), pressed, dec: true };
+      } else {
+        return { ...fun(state), pressed, dec: false };
+      }
+    });
 
   render() {
+    console.log(this.state);
     const { prev, a, b } = this.state;
     const dis = b ? b : a ? a : prev;
     const display = isNaN(dis) ? 'Err' : parseFloat(dis);
