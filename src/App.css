@@ -13,7 +13,7 @@
 }
 
 .CalcModel {
-  font-size: 0.6em;
+  font-size: 0.65rem;
   padding-bottom: 4px;
 }
 
@@ -28,19 +28,21 @@
     'fou fiv six sub'
     'one two thr add'
     'zer zer dec eq';
-  grid-gap: 10px 10px;
+  grid-gap: 12px 12px;
 }
 
 .CalcScreen {
   grid-area: sc;
   background-color: lightgreen;
   border: 1px solid grey;
-  border-radius: 3px;
-  padding: 10px;
+  border-radius: 5px;
+  padding: 10px 5px;
   text-align: right;
+  min-width: 210px;
 }
 
 .CalcKey {
   border: 1px solid grey;
-  border-radius: 3px;
+  border-radius: 5px;
+  min-height: 40px;
 }
