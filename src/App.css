@@ -34,7 +34,7 @@
 .CalcScreen {
   grid-area: sc;
   background-color: lightgreen;
-  border: 1px solid grey;
+  border: 2px solid grey;
   border-radius: 5px;
   padding: 10px 5px;
   text-align: right;
@@ -44,5 +44,6 @@
 .CalcKey {
   border: 1px solid grey;
   border-radius: 5px;
-  min-height: 40px;
+  min-height: 45px;
+  min-width: 52px;
 }
