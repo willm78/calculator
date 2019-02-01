@@ -260,7 +260,6 @@ class Calculator extends Component {
     });
 
   render() {
-    console.log(this.state);
     const { prev, a, b } = this.state;
     const dis = b ? b : a ? a : prev;
     const display = isNaN(dis) ? 'Err' : parseFloat(dis);
