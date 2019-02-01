@@ -268,18 +268,16 @@ class Calculator extends Component {
       <div className="Calc">
         <div className="CalcModel">Reactulator</div>
         <div className="CalcGrid">
-          <React.Fragment>
-            <CalcScreen>{display}</CalcScreen>
-            {keys.map(o => (
-              <CalcKey
-                key={o.value}
-                area={o.area}
-                onClick={this.onClick(o.fun, o.area)}
-              >
-                {o.value}
-              </CalcKey>
-            ))}
-          </React.Fragment>
+          <CalcScreen>{display}</CalcScreen>
+          {keys.map(o => (
+            <CalcKey
+              key={o.value}
+              area={o.area}
+              onClick={this.onClick(o.fun, o.area)}
+            >
+              {o.value}
+            </CalcKey>
+          ))}
         </div>
       </div>
     );
